@@ -1,17 +1,24 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { NotesModule } from './modules/notes/notes.module';
 import { CategoriesModule } from './modules/categories/categories.module';
+import { ConfigModule } from '@nestjs/config';
+import { SequelizeModule } from '@nestjs/sequelize';
+import { Note } from './modules/notes/note.model';
+import { Category } from './modules/categories/category.model';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: `${process.cwd()}/src/database/database.db`,
-      entities: [`${process.cwd()}/dist/**/*.entity.js`],
+    ConfigModule.forRoot(),
+    SequelizeModule.forRoot({
+      dialect: 'postgres',
+      host: process.env.DB_HOST,
+      port: +process.env.DB_PORT,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      models: [Note, Category],
+      repositoryMode: true,
       synchronize: false,
-      migrations: [`${process.cwd()}/dist/database/migrations/*.js`],
-      migrationsRun: true,
     }),
     NotesModule,
     CategoriesModule,

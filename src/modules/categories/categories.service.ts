@@ -1,20 +1,20 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { Category } from './category.entity';
-import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
+import { Repository, Sequelize } from 'sequelize-typescript';
+import { Category } from './category.model';
 
 @Injectable()
 export class CategoriesService {
-  constructor(
-    @InjectRepository(Category)
-    private categoriesRepository: Repository<Category>,
-  ) {}
+  constructor(private sequelize: Sequelize) {
+    this.categoriesRepository = this.sequelize.getRepository(Category);
+  }
+
+  private categoriesRepository: Repository<Category>;
 
   getCategories() {
-    return this.categoriesRepository.find();
+    return this.categoriesRepository.findAll();
   }
 
   findCategory(id: number) {
-    return this.categoriesRepository.findOneBy({ id });
+    return this.categoriesRepository.findByPk(id);
   }
 }

@@ -1,0 +1,8 @@
+{
+  "dialect": "postgres",
+  "host": "localhost",
+  "port": 5438,
+  "username": "postgres",
+  "password": "root",
+  "database": "notes_db"
+}

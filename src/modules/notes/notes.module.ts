@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { NotesController } from './notes.controller';
 import { NotesService } from './notes.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Note } from './note.entity';
+import { SequelizeModule } from '@nestjs/sequelize';
+import { Note } from './note.model';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Note])],
+  imports: [SequelizeModule.forFeature([Note])],
   controllers: [NotesController],
   providers: [NotesService],
 })

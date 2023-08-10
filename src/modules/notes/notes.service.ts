@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { PatchNoteDto } from './dto/patch-note.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Note } from './note.entity';
 import { NOTE_CATEGORY } from '../categories/note-category.enum';
+import { Repository, Sequelize } from 'sequelize-typescript';
+import { Note } from './note.model';
 
 @Injectable()
 export class NotesService {
-  constructor(
-    @InjectRepository(Note)
-    private notesRepository: Repository<Note>,
-  ) {}
+  constructor(private sequelize: Sequelize) {
+    this.notesRepository = this.sequelize.getRepository(Note);
+  }
+
+  private notesRepository: Repository<Note>;
 
   private dateParse(content: string) {
     const dates = content.match(
@@ -21,11 +21,13 @@ export class NotesService {
   }
 
   getNotes() {
-    return this.notesRepository.find();
+    return this.notesRepository.findAll({
+      include: [this.sequelize.models.Category],
+    });
   }
 
   findNote(id: number) {
-    return this.notesRepository.findOneBy({ id });
+    return this.notesRepository.findByPk(id);
   }
 
   addNote(dto: CreateNoteDto) {
@@ -34,23 +36,22 @@ export class NotesService {
       archived: false,
       ...dto,
     };
-    const note = this.notesRepository.create(noteToCreate);
-    return this.notesRepository.save(note);
+    return this.notesRepository.create(noteToCreate);
   }
 
   editNote(id: number, dto: PatchNoteDto) {
     const editData = dto.content
       ? { ...dto, dates: this.dateParse(dto.content) }
       : dto;
-    return this.notesRepository.update(id, editData);
+    return this.notesRepository.update(editData, { where: { id } });
   }
 
   deleteNote(id: number) {
-    return this.notesRepository.delete(id);
+    return this.notesRepository.destroy({ where: { id } });
   }
 
   async getStats() {
-    const notes = await this.notesRepository.find();
+    const notes = await this.getNotes();
     const stats = {};
     Object.values(NOTE_CATEGORY).forEach((category) => {
       stats[category] = {
