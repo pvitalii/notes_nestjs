@@ -1,0 +1,16 @@
+version: "3"
+services:
+  node-app:
+    build: .
+    ports: 
+      - "3000:3000"
+  db:
+    container_name: notes_postgres
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=notes_db
+    ports:
+      - "5432:5432"
